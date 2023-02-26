@@ -21,7 +21,6 @@ export function fibonaIt(n) {
 
 // programmed recursively
 export function fibRec(n) {
-
     if(n === 0){
         return 0;
     }
