@@ -1,5 +1,10 @@
 "use strict";
 
+/**
+ * For each word within a string, counts the number of occurrences of this word in this string
+ * @param {*} str 
+ * @returns an object whose properties are the words and the values of these properties are the occurrence numbers
+ */
 export function wcount(str) {
     let word = str.toString().split(" ");
     let output = {};
@@ -94,13 +99,15 @@ export class WrdLst {
      * @param {*} word 
      * @returns the number of occurrences for a given word. 
      */
-    getCount(word) {
-        let wordCounter = {};
+    getCount(str) {
+        let wordCounter = [];
 
-        this.str_aux.forEach(word => { wordCounter[word] += 1; });
+        this.strs.split(" ").forEach(word => {
+            wordCounter[word] = (wordCounter[word] || 0) + 1;
+        });
 
-        if (wordCounter[word] > 0)
-            return wordCounter[word];
+        if (wordCounter[str] > 0)
+            return wordCounter[str];
         else
             return 0;
     }

@@ -29,7 +29,7 @@ export class Promotion {
      * @returns the i-th Std in the promotion in the order where it was added
      */
     get(i) {
-        return this.students[i - 1];
+        return this.students[i];
     }
 
     /**
@@ -69,7 +69,7 @@ export class Promotion {
      * it writes a promotion to a text file as a JSON object
      * @param {*} fileName 
      */
-    saveToFile(fileName) {
+    saveTo(fileName) {
         fs.writeFile(fileName, this.write(), function (err) {
             if (err)
                 console.error(err);
@@ -82,7 +82,7 @@ export class Promotion {
      * it recreates a promotion from what has been saved to a file
      * @param {*} fileName 
      */
-    readFromFile(fileName) {
+    readF(fileName) {
         var that = this;
         fs.readFile(fileName, function (err, buf) {
             if (err)
