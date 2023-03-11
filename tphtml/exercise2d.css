@@ -1,0 +1,23 @@
+#dd1 {
+    border: 1px solid black;
+    padding: 13px;
+}
+
+#img {
+    float: left;
+    padding: 11px;
+}
+
+#dd3 {
+    background-color: slategrey;
+    padding: 10px;
+    background-clip: content-box;
+}
+
+.myclass {
+    position: absolute;
+    top: 94px;
+    left: 94px;
+    height: 485px;
+    width: 485px;
+}

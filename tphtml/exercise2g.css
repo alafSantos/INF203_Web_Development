@@ -1,0 +1,31 @@
+#dd1 {
+    border: 1px solid black;
+    padding: 13px;
+}
+
+#img {
+    float: left;
+    padding: 11px;
+}
+
+#dd3 {
+    background-color: slategrey;
+    padding: 10px;
+    background-clip: content-box;
+}
+
+.myclass {
+    position: fixed;
+    top: 129px;
+    left: 129px;
+    height: 435px;
+    width: 435px;
+}
+
+.myclass:active {
+    visibility: hidden;
+}
+
+.myclass:hover {
+    color: crimson;
+}
