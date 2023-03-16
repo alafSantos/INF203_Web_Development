@@ -1,21 +1,36 @@
+"use strict";
+
 function loadDoc() {
-    let ta = document.getElementById("ta");
+    let textarea = document.getElementById("ta");
     let xhr = new XMLHttpRequest();
     xhr.open("GET", "text.txt");
     xhr.onload = function () {
-        ta.value = this.responseText;
+        textarea.value = this.responseText;
     }
     xhr.send();
 }
 
 function loadDoc2() {
-    var obj = document.createElement("p");
     let xhr = new XMLHttpRequest();
     xhr.open("GET", "text.txt");
     xhr.onload = function () {
-        obj.textContent = this.responseText;
-        var div = document.getElementById("ta2");
-        div.appendChild(obj);
+        const text = this.responseText.split("<br/>");
+        const div = document.getElementById("ta2");
+
+        for (let i = 0; i < text.length; i++) {
+            let color = "#";
+            let hex = "0123456789ABCDEF";
+
+            for (let i = 0; i < 6; i++) {
+                let index = Math.floor(Math.random() * 16);
+                color += hex[index];
+            }
+
+            let p = document.createElement("p");
+            p.style.color = color;
+            p.textContent = text[i];
+            div.appendChild(p);
+        }
     }
     xhr.send();
 }
