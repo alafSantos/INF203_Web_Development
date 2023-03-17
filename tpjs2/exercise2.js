@@ -20,7 +20,6 @@ function loop() {
         }
 
         let text = this.responseText.split("\n");
-        console.log(text)
         const numberOfMessages = 10;
         const len = text.length - 1;
 

@@ -18,37 +18,43 @@ function loadSlides() {
 loadSlides();
 
 function play() {
-    if (index == slides.slides.length) {
-        index = 0;
-        console.log("slides ", slides.slides.length);
+    if (!pauseFlag) {
+        if (index == slides.slides.length) {
+            index = 0;
+
+            // after a fresh load, the slideshow is empty
+            while (div.firstChild) {
+                div.removeChild(div.firstChild);
+            }
+            return;
+        }
+
+        if (slides.slides[index].url.length == 0) {
+            console.log("index ", index);
+            index++;
+            return;
+        }
+
+        let div = document.getElementById("TOP");
+
+        // empty the div
+        while (div.firstChild) {
+            div.removeChild(div.firstChild);
+        }
+
+        let frame = document.createElement("iframe");
+        frame.style.width = "100%";
+        frame.style.height = "500px";
+        frame.style.overflow = "auto";
+
+        frame.src = slides.slides[index++].url;
+        div.appendChild(frame);
+        setTimeout(play, 1000 * slides.slides[index].time);
     }
-
-    if(slides.slides[index].url.length == 0){
-        console.log("index ", index);
-        index++;
-        return;
-    }
-
-    let div = document.getElementById("TOP");
-    
-    // empty the div
-    while(div.firstChild) {
-        div.removeChild(div.firstChild);
-    }
-
-    let frame = document.createElement("iframe");
-    frame.style.width = "100%";
-    frame.style.height = "500px";
-    frame.style.overflow = "auto";
-
-    frame.src = slides.slides[index++].url;
-    div.appendChild(frame);
-    setTimeout(play, 1000 * slides.slides[index].time);
 }
 
 function pause() {
     pauseFlag = !pauseFlag;
-    console.log("pause state", pause);
 }
 
 function next() {
