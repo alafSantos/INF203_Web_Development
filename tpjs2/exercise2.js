@@ -13,21 +13,25 @@ function loop() {
     xhr.open("GET", "chatlog.txt");
     xhr.onload = function () {
         let div = document.getElementById("ta");
-        div.innerHTML = "";
-        let text = this.responseText.split('\n').pop();
 
+        // empty the div
+        while(div.firstChild) {
+            div.removeChild(div.firstChild);
+        }
+
+        let text = this.responseText.split("\n");
+        console.log(text)
         const numberOfMessages = 10;
-        const len = text.length;
+        const len = text.length - 1;
 
-        for (let i = len; i > len - numberOfMessages; i--) {
+        for (let i = len; i >= len - numberOfMessages; i--) {
             let p = document.createElement('p');
-            let textnode = document.createTextNode(text[i]);
-            p.appendChild(textnode);
+            p.textContent = text[i];
             div.appendChild(p);
         }
     }
     xhr.send();
-    setTimeout(loop(), 1000);
+    setTimeout(loop, 1000);
 }
 
 loop();
