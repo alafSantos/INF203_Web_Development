@@ -2,6 +2,7 @@
 
 var slides;
 var index = 0;
+var time_previous = 0;
 var pauseFlag = false;
 
 function loadSlides() {
@@ -10,7 +11,6 @@ function loadSlides() {
 
     xhr.onload = function () {
         slides = JSON.parse(this.responseText);
-        console.log("slides:", slides)
     }
     xhr.send();
 }
@@ -21,19 +21,10 @@ function play() {
     if (!pauseFlag) {
         if (index == slides.slides.length) {
             index = 0;
-
-            // after a fresh load, the slideshow is empty
-            while (div.firstChild) {
-                div.removeChild(div.firstChild);
-            }
             return;
         }
 
-        if (slides.slides[index].url.length == 0) {
-            console.log("index ", index);
-            index++;
-            return;
-        }
+        let time_now = slides.slides[index].time;
 
         let div = document.getElementById("TOP");
 
@@ -49,7 +40,15 @@ function play() {
 
         frame.src = slides.slides[index++].url;
         div.appendChild(frame);
-        setTimeout(play, 1000 * slides.slides[index].time);
+
+
+        let delta = time_now - time_previous;
+        if (!delta) {
+            delta = 2;
+        }
+
+        time_previous = time_now;
+        setTimeout(play, 1000 * delta);
     }
 }
 
