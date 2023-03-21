@@ -15,7 +15,7 @@ function loop() {
         let div = document.getElementById("ta");
 
         // empty the div
-        while(div.firstChild) {
+        while (div.firstChild) {
             div.removeChild(div.firstChild);
         }
 
@@ -24,6 +24,9 @@ function loop() {
         const len = text.length - 1;
 
         for (let i = len; i >= len - numberOfMessages; i--) {
+            if (text[i] == "" || text[i] == null) {
+                continue;
+            }
             let p = document.createElement('p');
             p.textContent = text[i];
             div.appendChild(p);
