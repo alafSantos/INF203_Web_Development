@@ -4,6 +4,7 @@ var slides;
 var index = 0;
 var time_previous = 0;
 var pauseFlag = false;
+var presentation = [];
 
 function loadSlides() {
     let xhr = new XMLHttpRequest();
@@ -18,7 +19,9 @@ function loadSlides() {
 loadSlides();
 
 function play() {
+    console.log("index = ", index);
     if (!pauseFlag) {
+        document.getElementById("paus").textContent = "PAUSE";
         if (index == slides.slides.length) {
             index = 0;
             return;
@@ -48,17 +51,23 @@ function play() {
         }
 
         time_previous = time_now;
-        setTimeout(play, 1000 * delta);
+        presentation.push(setTimeout(play, 1000 * delta));
     }
 }
 
 function pause() {
     pauseFlag = !pauseFlag;
+    if (pauseFlag)
+        document.getElementById("paus").textContent = "CONTINUE";
+    else
+        document.getElementById("paus").textContent = "PAUSE";
+    play();
 }
 
 function next() {
+    clearTimeout(presentation);
     pauseFlag = false;
-    if (index == slides.slides.size) {
+    if (index == slides.slides.size - 1) {
         index = 0;
     }
     else {
@@ -69,11 +78,8 @@ function next() {
 
 function previous() {
     pauseFlag = false;
-    if (index == 0) {
-        index = slides.slides.size;
-    }
-    else {
+    clearTimeout(presentation);
+    if(index > 0)
         index--;
-    }
-    play();
+    // play();
 }
