@@ -2,9 +2,8 @@
 
 var slides;
 var index = 0;
-var time_previous = 0;
-var pauseFlag = false;
-var presentation = [];
+var pauseFlag = true;
+var once = false;
 
 function loadSlides() {
     let xhr = new XMLHttpRequest();
@@ -19,16 +18,13 @@ function loadSlides() {
 loadSlides();
 
 function play() {
-    console.log("index = ", index);
-    if (!pauseFlag) {
+    if (index == slides.slides.length || index < 0) {
+        pauseFlag = true;
+        index = 0;
+    }
+
+    if (pauseFlag) {
         document.getElementById("paus").textContent = "PAUSE";
-        if (index == slides.slides.length) {
-            index = 0;
-            return;
-        }
-
-        let time_now = slides.slides[index].time;
-
         let div = document.getElementById("TOP");
 
         // empty the div
@@ -36,6 +32,7 @@ function play() {
             div.removeChild(div.firstChild);
         }
 
+        let time_now = slides.slides[index].time;
         let frame = document.createElement("iframe");
         frame.style.width = "100%";
         frame.style.height = "500px";
@@ -44,42 +41,34 @@ function play() {
         frame.src = slides.slides[index++].url;
         div.appendChild(frame);
 
-
-        let delta = time_now - time_previous;
-        if (!delta) {
-            delta = 2;
+        if (!(index == slides.length) && !once) {
+            setTimeout(play, 1000 * (slides.slides[index].time - time_now));
         }
-
-        time_previous = time_now;
-        presentation.push(setTimeout(play, 1000 * delta));
     }
+
+    pauseFlag = !pauseFlag;
 }
 
 function pause() {
-    pauseFlag = !pauseFlag;
-    if (pauseFlag)
-        document.getElementById("paus").textContent = "CONTINUE";
-    else
+    if (!pauseFlag) {
+        once = false;
         document.getElementById("paus").textContent = "PAUSE";
+    }
+    else {
+        document.getElementById("paus").textContent = "CONTINUE";
+    }
     play();
 }
 
 function next() {
-    clearTimeout(presentation);
-    pauseFlag = false;
-    if (index == slides.slides.size - 1) {
-        index = 0;
-    }
-    else {
-        index++;
-    }
+    pauseFlag = true;
+    once = true;
     play();
 }
 
 function previous() {
-    pauseFlag = false;
-    clearTimeout(presentation);
-    if(index > 0)
-        index--;
-    // play();
+    pauseFlag = true;
+    once = true;
+    index -= 2;
+    play();
 }
