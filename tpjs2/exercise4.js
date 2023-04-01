@@ -2,6 +2,7 @@
 
 var slides;
 var index = 0;
+var time_previous = 0;
 var pauseFlag = true;
 var once = false;
 
@@ -24,7 +25,6 @@ function play() {
     }
 
     if (pauseFlag) {
-        document.getElementById("paus").textContent = "PAUSE";
         let div = document.getElementById("TOP");
 
         // empty the div
@@ -42,20 +42,25 @@ function play() {
         div.appendChild(frame);
 
         if (!(index == slides.length) && !once) {
-            setTimeout(play, 1000 * (slides.slides[index].time - time_now));
+            let delta = time_now - time_previous;
+            if (!delta) {
+                delta = 2;
+            }
+
+            time_previous = time_now;
+            setTimeout(play, 1000 * delta);
         }
     }
-
-    pauseFlag = !pauseFlag;
 }
 
 function pause() {
+    pauseFlag = !pauseFlag;
     if (!pauseFlag) {
         once = false;
-        document.getElementById("paus").textContent = "PAUSE";
+        document.getElementById("paus").textContent = "CONTINUE";
     }
     else {
-        document.getElementById("paus").textContent = "CONTINUE";
+        document.getElementById("paus").textContent = "PAUSE";
     }
     play();
 }
