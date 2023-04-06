@@ -7,6 +7,20 @@ import { parse, unescape } from "node:querystring";
 
 const users = new Set();
 
+function createPage(message) {
+  const html =
+    `<!DOCTYPE html>
+    <html lang="en">
+    <head></head>
+        <body>
+          ${message}
+        </body>
+      </html>
+    `;
+
+  return html;
+}
+
 // process requests
 function webserver(request, response) {
   const { url, method } = request;
@@ -18,15 +32,8 @@ function webserver(request, response) {
     const visitorName = unescape(visiteur);
 
     // generate HTML response
-    const html =
-      `<!DOCTYPE html>
-    <html lang="en">
-    <head></head>
-        <body>
-          <h1>Bonjour ${visitorName}!</h1>
-        </body>
-    </html>
-    `;
+    const message = "bonjour " + visitorName;
+    const html = createPage(message);
 
     // send response
     response.setHeader("Content-Type", "text/html; charset=utf-8");
@@ -39,31 +46,22 @@ function webserver(request, response) {
     const { nom } = parse(query);
     const userName = unescape(nom);
 
-    // add user to set
-    users.add(userName);
-
     // generate list of users
     let userList = Array.from(users).join(", ");
-    if (userList.length === 0) {
-      userList = "none";
-    }
+    if (userList.length === 0)
+      userList = "";
 
     // generate HTML response
-    const html =
-      `<!DOCTYPE html>
-    <html lang="en">
-    <head></head>
-        <body>
-          <h1>Bonsoir ${userName}!</h1>
-          <p>the following users have already visited this page: ${userList}.</p>
-        </body>
-      </html>
-    `;
+    const message = "bonsoir " + userName + ", the following users have already visited this page: " + userList;
+    const html = createPage(message);
 
     // send response    
     response.setHeader("Content-Type", "text/html; charset=utf-8");
     response.writeHead(200);
     response.end(html);
+
+    // add user to set
+    users.add(userName);
   }
   // serve files
   else if (method === "GET" && url.startsWith("/files")) {
@@ -106,46 +104,35 @@ function webserver(request, response) {
   else if (method === "GET" && url.startsWith("/clear")) {
     users.clear();
 
-    const html =
-      `<!DOCTYPE html>
-    <html lang="en">
-    <head></head>
-      <body>
-        <p>The list of users has been cleared.</p>
-      </body>
-    </html>`;
+    // generate HTML response
+    let message = "the list of users has been cleared";
+    const html = createPage(message);
 
+    // send response 
     response.setHeader("Content-Type", "text/html; charset=utf-8");
     response.writeHead(200);
     response.end(html);
   }
   // handle other requests
   else if (method === "GET" && url == "/end") {
+    // generate HTML response
+    let message = "the server will stop now.";
+    const html = createPage(message);
+
+    // send response 
     response.setHeader("Content-Type", "text/html; charset=utf-8");
     response.writeHead(200);
-    let html =
-      `<!DOCTYPE html>
-    <html lang="en">
-    <head></head>
-      <body>
-      The server will stop now.
-      </body>
-    </html>`;
-
     response.end(html);
     process.exit(0);
   }
   else {
+    // generate HTML response
+    let message = "Server works.";
+    const html = createPage(message);
+
+    // send response 
     response.setHeader("Content-Type", "text/html; charset=utf-8");
     response.writeHead(200);
-    let html =
-      `<!DOCTYPE html>
-    <html lang="en">
-    <head></head>
-      <body>
-      Server works.
-      </body>
-    </html>`;
     response.end(html);
   }
 }
