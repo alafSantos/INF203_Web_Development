@@ -2,8 +2,9 @@
 
 import { createServer } from "http";
 import { argv } from "node:process";
-import { readFile } from "node:fs";
 import { parse, unescape } from "node:querystring";
+import { extname, join } from "node:path";
+import { createReadStream, statSync } from "node:fs";
 
 const users = new Set();
 
@@ -65,41 +66,45 @@ function webserver(request, response) {
   }
   // serve files
   else if (method === "GET" && url.startsWith("/files")) {
-    const fileName = url.slice(7);
-    const filePath = `./${fileName}`;
+    const mimeTypes = {
+      ".html": "text/html",
+      ".css": "text/css",
+      ".js": "text/javascript",
+      ".png": "image/png",
+      ".jpg": "image/jpeg",
+      ".gif": "image/gif",
+    };
 
-    // prevent serving files from parent directories
-    if (fileName.includes("..")) {
-      response.setHeader("Content-Type", "text/html; charset=utf-8");
-      response.writeHead(404);
-      response.end("Erreur 404");
-      return;
-    }
+    // remove "/files/" prefix from URL
+    let path = url.slice(7);
+    // construct file path
+    let filePath = join(".", path);
 
-    // read file
-    readFile(filePath, (err, data) => {
-      if (err) {
-        response.statusCode = 404;
-        response.end();
+    try {
+      // check if file exists and is a file (not a directory)
+      let fileStats = statSync(filePath);
+      if (fileStats.isFile()) {
+        // get file extension to determine MIME type
+        let fileExt = extname(filePath);
+        let mimeType = mimeTypes[fileExt] || "application/octet-stream";
+
+        // set response headers
+        response.setHeader("Content-Type", mimeType);
+        response.setHeader("Content-Length", fileStats.size);
+
+        // stream file contents to response
+        let fileStream = createReadStream(filePath);
+        fileStream.pipe(response);
+
         return;
       }
-
-      // set MIME type based on file extension
-      let mimeType = "";
-      if (fileName.endsWith(".html")) {
-        mimeType = "text/html";
-      } else if (fileName.endsWith(".css")) {
-        mimeType = "text/css";
-      } else if (fileName.endsWith(".js")) {
-        mimeType = "application/javascript";
-      } else if (fileName.endsWith(".png")) {
-        mimeType = "image/png";
-      }
-
-      // send response
-      response.setHeader("Content-Type", mimeType);
-      response.end(data);
-    });
+    } catch (error) {
+      // file doesn't exist or isn't a file
+      console.error(error);
+    }
+    // return 404 error if file not found or isn't a file
+    response.writeHead(404, { "Content-Type": "text/plain" });
+    response.end("File not found or is a directory.");
   }
   else if (method === "GET" && url.startsWith("/clear")) {
     users.clear();
