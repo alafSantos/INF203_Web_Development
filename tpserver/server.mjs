@@ -44,7 +44,7 @@ function webserver(request, response) {
   else if (method === "GET" && url.startsWith("/bonsoir")) {
     const query = url.split("?")[1];
     const { nom } = parse(query);
-    const userName = unescape(nom);
+    const userName = escape(nom); // solvind XSS vulnerability, escape is deprecated
 
     // generate list of users
     let userList = Array.from(users).join(", ");
@@ -52,7 +52,7 @@ function webserver(request, response) {
       userList = "";
 
     // generate HTML response
-    const message = "bonsoir " + userName + ", the following users have already visited this page: " + userList;
+    let message = "bonsoir " + userName + ", the following users have already visited this page: " + userList;
     const html = createPage(message);
 
     // send response    
@@ -65,46 +65,54 @@ function webserver(request, response) {
   }
   // process GET requests to /files
   else if (method === "GET" && url.startsWith("/files")) {
-    const mimeTypes = {
-      ".html": "text/html",
-      ".css": "text/css",
-      ".js": "text/javascript",
-      ".mjs": "text/javascript",
-      ".png": "image/png",
-      ".jpg": "image/jpeg",
-      ".gif": "image/gif",
-    };
-
-    // remove "/files/" prefix from URL
-    let path = url.slice(7);
-    // construct file path
-    let filePath = join(".", path);
-
-    try {
-      // check if file exists and is a file (not a directory)
-      let fileStats = statSync(filePath);
-      if (fileStats.isFile()) {
-        // get file extension to determine MIME type
-        let fileExt = extname(filePath);
-        let mimeType = mimeTypes[fileExt];
-
-        // set response headers
-        response.setHeader("Content-Type", mimeType);
-        response.setHeader("Content-Length", fileStats.size);
-
-        // stream file contents to response
-        let fileStream = createReadStream(filePath);
-        fileStream.pipe(response);
-
-        return;
-      }
-    } catch (error) {
-      // file doesn't exist or isn't a file
-      console.error(error);
+    if (url.includes("..")) {
+      response.setHeader("Content-Type", "text/plain; charset=utf-8");
+      response.writeHead(403);
+      response.end("Forbidden URL.");
     }
-    // return 404 error if file not found or isn't a file
-    response.writeHead(404, { "Content-Type": "text/plain" });
-    response.end("File not found or is a directory.");
+    else {
+      const mimeTypes = {
+        ".html": "text/html",
+        ".css": "text/css",
+        ".js": "application/javascript",
+        ".mjs": "application/javascript",
+        ".png": "image/png",
+        ".jpg": "image/jpeg",
+        ".gif": "image/gif",
+      };
+
+      // remove "/files/" prefix from URL
+      let path = url.slice(7);
+      // construct file path
+      let filePath = join(".", path);
+
+      try {
+        // check if file exists and is a file (not a directory)
+        let fileStats = statSync(filePath);
+        if (fileStats.isFile()) {
+          // get file extension to determine MIME type
+          let fileExt = extname(filePath);
+          let mimeType = mimeTypes[fileExt];
+
+          // set response headers
+          response.setHeader("Content-Type", mimeType);
+          response.setHeader("Content-Length", fileStats.size);
+
+          // stream file contents to response
+          let fileStream = createReadStream(filePath);
+          fileStream.pipe(response);
+
+          return;
+        }
+      } catch (error) {
+        // file doesn't exist or isn't a file
+        console.error(error);
+      }
+      // return 404 error if file not found or isn't a file
+      response.setHeader("Content-Type", "text/plain; charset=utf-8");
+      response.writeHead(404);
+      response.end("File not found or is a directory.");
+    }
   }
   // process GET requests to /clear
   else if (method === "GET" && url.startsWith("/clear")) {
@@ -122,7 +130,7 @@ function webserver(request, response) {
   // process GET requests to /end
   else if (method === "GET" && url == "/end") {
     // generate HTML response
-    let message = "the server will stop now.";
+    let message = "The server will stop now.";
     const html = createPage(message);
 
     // send response 
