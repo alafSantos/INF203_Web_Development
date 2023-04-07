@@ -18,7 +18,6 @@ function createPage(message) {
         </body>
       </html>
     `;
-
   return html;
 }
 
@@ -64,7 +63,7 @@ function webserver(request, response) {
     // add user to set
     users.add(userName);
   }
-  // serve files
+  // process GET requests to /files
   else if (method === "GET" && url.startsWith("/files")) {
     const mimeTypes = {
       ".html": "text/html",
@@ -86,7 +85,7 @@ function webserver(request, response) {
       if (fileStats.isFile()) {
         // get file extension to determine MIME type
         let fileExt = extname(filePath);
-        let mimeType = mimeTypes[fileExt] || "application/octet-stream";
+        let mimeType = mimeTypes[fileExt];
 
         // set response headers
         response.setHeader("Content-Type", mimeType);
@@ -106,6 +105,7 @@ function webserver(request, response) {
     response.writeHead(404, { "Content-Type": "text/plain" });
     response.end("File not found or is a directory.");
   }
+  // process GET requests to /clear
   else if (method === "GET" && url.startsWith("/clear")) {
     users.clear();
 
@@ -118,7 +118,7 @@ function webserver(request, response) {
     response.writeHead(200);
     response.end(html);
   }
-  // handle other requests
+  // process GET requests to /end
   else if (method === "GET" && url == "/end") {
     // generate HTML response
     let message = "the server will stop now.";
@@ -130,6 +130,7 @@ function webserver(request, response) {
     response.end(html);
     process.exit(0);
   }
+  // anything else
   else {
     // generate HTML response
     let message = "Server works.";
