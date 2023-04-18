@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<header>
+    <title>Client</title>
+    <script src="test2.js"></script>
+    <meta charset='utf-8'>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+</header>
+
+<body>
+    <menu class="bar">
+        <li><button id="SHOW_BUTTON" onclick="show()">show txt</button></li>
+        <li><button id="BUT_ADD" onclick="copy()">add element</button></li>
+        <li><button id="REMOVE" onclick="copy()">remove element</button></li>
+        <li><button id="CLEAR" onclick="cut()">clear</button></li>
+        <li><button id="RESTORE" onclick="paste()">restore</button></li>
+    </menu>
+
+    <input type="text" id="indexTF">
+    <input type="text" id="titleTF">
+    <input type="text" id="colorTF">
+    <input type="text" id="valueTF">
+
+    <button id="SENDADD">validate</button>
+    <button id="DOREM">removal</button>
+
+    <br>
+    <div id="MAINSHOW"></div>
+
+    <br>
+    <button>
+        show piechart
+    </button>
+    <svg id="PIEBUTTON" type="image/svg+xml" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 600" version="1.1">
+    </svg>
+
+    <button id="LOC_PIE_BUTTON" onclick="show()">
+        show local piechart
+    </button>
+
+</body>
+
+</html>

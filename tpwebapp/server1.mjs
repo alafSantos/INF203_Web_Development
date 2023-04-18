@@ -25,35 +25,40 @@ function webserver(request, response) {
   const { url, method } = request;
 
   // process GET requests to /files
-  if (method === "GET" && url.startsWith("/files")) {
+  if (method === "GET" && (url.startsWith("/files") || url.startsWith("/show"))) {
+    const mimeTypes = {
+      ".html": "text/html",
+      ".css": "text/css",
+      ".js": "application/javascript",
+      ".mjs": "application/javascript",
+      ".png": "image/png",
+      ".jpg": "image/jpeg",
+      ".gif": "image/gif",
+      ".json": "application/json",
+      ".svg": "image/svg+xml",
+    };
+
     if (url.includes("..")) {
       response.setHeader("Content-Type", "text/plain; charset=utf-8");
       response.writeHead(403);
       response.end("Forbidden URL.");
     }
     else {
-      const mimeTypes = {
-        ".html": "text/html",
-        ".css": "text/css",
-        ".js": "application/javascript",
-        ".mjs": "application/javascript",
-        ".png": "image/png",
-        ".jpg": "image/jpeg",
-        ".gif": "image/gif",
-      };
+      const show = url.startsWith("/show");
 
       // remove "/files/" prefix from URL
       let path = url.slice(7);
       // construct file path
-      let filePath = join(".", path);
+      let filePath = show ? "storage.json" : join(".", path);
 
       try {
         // check if file exists and is a file (not a directory)
         let fileStats = statSync(filePath);
+        
         if (fileStats.isFile()) {
           // get file extension to determine MIME type
-          let fileExt = extname(filePath);
-          let mimeType = mimeTypes[fileExt];
+          let fileExt = show ? null : extname(filePath);
+          let mimeType = show ? mimeTypes[".json"] : mimeTypes[fileExt];
 
           // set response headers
           response.setHeader("Content-Type", mimeType);
@@ -69,11 +74,15 @@ function webserver(request, response) {
         // file doesn't exist or isn't a file
         console.error(error);
       }
-      // return 404 error if file not found or isn't a file
-      response.setHeader("Content-Type", "text/plain; charset=utf-8");
-      response.writeHead(404);
-      response.end("File not found or is a directory.");
     }
+    // return 404 error if file not found or isn't a file
+    response.setHeader("Content-Type", "text/plain; charset=utf-8");
+    response.writeHead(404);
+    response.end("File not found or is a directory.");
+  }
+  // process GET requests to /Chart
+  else if (method === "GET" && url == "/chart") {
+
   }
   // process GET requests to /end
   else if (method === "GET" && url == "/stop") {
