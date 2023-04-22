@@ -27,6 +27,10 @@ function webserver(request, response) {
   const params = new URL(url, `http://localhost:${port}`).searchParams;
   const database_name = "storage.json";
 
+  response.setHeader('Access-Control-Allow-Origin', '*');
+  response.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+  response.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
   // process GET requests to /files
   if (method === "GET" && (url.startsWith("/files") || url.startsWith("/Show"))) {
     const mimeTypes = {
@@ -47,17 +51,16 @@ function webserver(request, response) {
       response.end("Forbidden URL.");
     }
     else {
-      console.log("url", url)
       const show = url.startsWith("/Show");
 
       if (show) {
         if (!fs.existsSync(database_name)) {
           response.writeHeader(404);
           response.end()
+          return;
         }
-        return;
       }
-
+      
       // remove "/files/" prefix from URL
       let path = url.slice(7);
       // construct file path
@@ -134,6 +137,43 @@ function webserver(request, response) {
     let json_str = JSON.stringify(json);
     response.writeHeader(200);
     response.end(json_str);
+  }
+  // process GET requests to /Chart
+  else if (method === "GET" && url == "/Chart") {
+    function calculateCoordinates(percentValue) {
+      const xValue = Math.cos(2 * Math.PI * percentValue);
+      const yValue = Math.sin(2 * Math.PI * percentValue);
+      return [xValue, yValue];
+    }
+
+    const sliceData = JSON.parse(fs.readFileSync("storage.json"));
+    let svgString = '<svg id="piechart" viewBox="-1 -1 2 2" height=500 width=500>';
+    let totalValue = 0;
+
+    for (let slice of sliceData) {
+      totalValue += Number(slice.amount);
+    }
+
+    let cumulativeValue = 0;
+    for (let slice of sliceData) {
+      let percentValue = slice.amount / totalValue;
+      let [xStart, yStart] = calculateCoordinates(cumulativeValue);
+      cumulativeValue += percentValue;
+      let [xEnd, yEnd] = calculateCoordinates(cumulativeValue);
+
+      let largeArcFlagValue = percentValue > .5 ? 1 : 0;
+      let pathDataString = [
+        `M ${xStart} ${yStart}`,
+        `A 1 1 0 ${largeArcFlagValue} 1 ${xEnd} ${yEnd}`,
+        `L 0 0`,
+      ].join(' ');
+
+      svgString += `<path d="${pathDataString}" fill="${slice.color}"></path>`;
+    }
+    svgString += '</svg>';
+    response.writeHeader(200, { "Content-Type": "image/svg+xml" });
+    response.write(svgString);
+    response.end("SVG sent");
   }
   // process GET requests to /end
   else if (method === "GET" && url == "/stop") {
