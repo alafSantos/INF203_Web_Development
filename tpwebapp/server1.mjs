@@ -27,10 +27,6 @@ function webserver(request, response) {
   const params = new URL(url, `http://localhost:${port}`).searchParams;
   const database_name = "storage.json";
 
-  // response.setHeader('Access-Control-Allow-Origin', '*');
-  // response.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-  // response.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-
   // process GET requests to /files
   if (method === "GET" && (url.startsWith("/files") || url.startsWith("/Show"))) {
     const mimeTypes = {
@@ -130,9 +126,14 @@ function webserver(request, response) {
     response.writeHeader(200)
     response.end(json_str);
   }
-  // process GET requests to /Chart
-  else if (method === "GET" && url == "/chart") {
-
+  // process GET requests to /restore
+  else if (method === "GET" && url == "/restore") {
+    let newJSON = `[{"title": "foo", "color": "red", "value": 20}, {"title": "bar", "color": "ivory", "value": 100}, {"title": "empty", "color": "red", "value": 1}]`;
+    fs.writeFileSync(database_name, newJSON);
+    let json = JSON.parse(fs.readFileSync(database_name, 'utf8'));
+    let json_str = JSON.stringify(json);
+    response.writeHeader(200);
+    response.end(json_str);
   }
   // process GET requests to /end
   else if (method === "GET" && url == "/stop") {
