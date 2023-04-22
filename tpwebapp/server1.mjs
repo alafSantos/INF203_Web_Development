@@ -25,6 +25,7 @@ function createPage(message) {
 function webserver(request, response) {
   const { url, method } = request;
   const params = new URL(url, `http://localhost:${port}`).searchParams;
+  const database_name = "storage.json";
 
   // response.setHeader('Access-Control-Allow-Origin', '*');
   // response.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
@@ -54,7 +55,7 @@ function webserver(request, response) {
       const show = url.startsWith("/Show");
 
       if (show) {
-        if (!fs.existsSync("storage.json")) {
+        if (!fs.existsSync(database_name)) {
           response.writeHeader(404);
           response.end()
         }
@@ -64,7 +65,7 @@ function webserver(request, response) {
       // remove "/files/" prefix from URL
       let path = url.slice(7);
       // construct file path
-      let filePath = show ? "storage.json" : join(".", path);
+      let filePath = show ? database_name : join(".", path);
 
       try {
         // check if file exists and is a file (not a directory)
@@ -100,20 +101,34 @@ function webserver(request, response) {
   }
   // process GET requests to /add
   else if (method === "GET" && url.startsWith("/add")) {
-    var json = JSON.parse(fs.readFileSync("storage.json", 'utf8'));
+    var json = JSON.parse(fs.readFileSync(database_name, 'utf8'));
     let jsonObj = {
       title: unescape(params.get("title")),
       color: unescape(params.get("color")),
       value: parseInt(unescape(params.get("value")))
     };
     json.push(jsonObj);
-    fs.writeFileSync("storage.json", JSON.stringify(json));
+    let json_str = JSON.stringify(json);
+    fs.writeFileSync(database_name, json_str);
     response.writeHeader(200);
-    response.end(JSON.stringify(json));
+    response.end(json_str);
   }
   // process GET requests to /remove
-  else if (method === "GET" && url == "/remove") {
-
+  else if (method === "GET" && url.startsWith("/remove")) {
+    let json = JSON.parse(fs.readFileSync(database_name, 'utf8'));
+    json.splice(unescape(params.get("index")), 1);
+    let json_str = JSON.stringify(json);
+    fs.writeFileSync(database_name, json_str);
+    response.writeHeader(200);
+    response.end(json_str);
+  }
+  // process GET requests to /clear
+  else if (method === "GET" && url == "/clear") {
+    fs.writeFileSync(database_name, `[{"title": "empty", "color": "red", "value": 1}]`);
+    let json = JSON.parse(fs.readFileSync(database_name, 'utf8'));
+    let json_str = JSON.stringify(json);
+    response.writeHeader(200)
+    response.end(json_str);
   }
   // process GET requests to /Chart
   else if (method === "GET" && url == "/chart") {

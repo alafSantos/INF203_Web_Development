@@ -7,3 +7,4 @@ tpserver/tpserver.zip
 tpwebapp/tpwebapp.zip
 tpwebapp/node_modules/*
 tpwebapp/etc/
+tpwebapp/storage.json
