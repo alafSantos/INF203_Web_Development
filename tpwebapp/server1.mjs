@@ -4,8 +4,9 @@ import { createServer } from "http";
 import { argv } from "node:process";
 import { extname, join } from "node:path";
 import { createReadStream, statSync } from "node:fs";
+import fs from 'fs';
 
-const users = new Set();
+const port = argv[2] || 8000;
 
 function createPage(message) {
   const html =
@@ -23,9 +24,14 @@ function createPage(message) {
 // process requests
 function webserver(request, response) {
   const { url, method } = request;
+  const params = new URL(url, `http://localhost:${port}`).searchParams;
+
+  // response.setHeader('Access-Control-Allow-Origin', '*');
+  // response.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+  // response.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
   // process GET requests to /files
-  if (method === "GET" && (url.startsWith("/files") || url.startsWith("/show"))) {
+  if (method === "GET" && (url.startsWith("/files") || url.startsWith("/Show"))) {
     const mimeTypes = {
       ".html": "text/html",
       ".css": "text/css",
@@ -44,7 +50,16 @@ function webserver(request, response) {
       response.end("Forbidden URL.");
     }
     else {
-      const show = url.startsWith("/show");
+      console.log("url", url)
+      const show = url.startsWith("/Show");
+
+      if (show) {
+        if (!fs.existsSync("storage.json")) {
+          response.writeHeader(404);
+          response.end()
+        }
+        return;
+      }
 
       // remove "/files/" prefix from URL
       let path = url.slice(7);
@@ -54,7 +69,7 @@ function webserver(request, response) {
       try {
         // check if file exists and is a file (not a directory)
         let fileStats = statSync(filePath);
-        
+
         if (fileStats.isFile()) {
           // get file extension to determine MIME type
           let fileExt = show ? null : extname(filePath);
@@ -62,12 +77,15 @@ function webserver(request, response) {
 
           // set response headers
           response.setHeader("Content-Type", mimeType);
-          response.setHeader("Content-Length", fileStats.size);
-
-          // stream file contents to response
-          let fileStream = createReadStream(filePath);
-          fileStream.pipe(response);
-
+          response.writeHead(200);
+          if (show || fileExt == ".json") {
+            response.end(JSON.stringify(JSON.parse(fs.readFileSync(filePath, 'utf8'))));
+          }
+          else {
+            // stream file contents to response
+            let fileStream = createReadStream(filePath);
+            fileStream.pipe(response);
+          }
           return;
         }
       } catch (error) {
@@ -79,6 +97,23 @@ function webserver(request, response) {
     response.setHeader("Content-Type", "text/plain; charset=utf-8");
     response.writeHead(404);
     response.end("File not found or is a directory.");
+  }
+  // process GET requests to /add
+  else if (method === "GET" && url.startsWith("/add")) {
+    var json = JSON.parse(fs.readFileSync("storage.json", 'utf8'));
+    let jsonObj = {
+      title: unescape(params.get("title")),
+      color: unescape(params.get("color")),
+      value: parseInt(unescape(params.get("value")))
+    };
+    json.push(jsonObj);
+    fs.writeFileSync("storage.json", JSON.stringify(json));
+    response.writeHeader(200);
+    response.end(JSON.stringify(json));
+  }
+  // process GET requests to /remove
+  else if (method === "GET" && url == "/remove") {
+
   }
   // process GET requests to /Chart
   else if (method === "GET" && url == "/chart") {
@@ -113,7 +148,6 @@ function webserver(request, response) {
 const server = createServer(webserver);
 
 // server starting
-let port = argv[2] || 8000;
 server.listen(port, (err) => {
   if (err) {
     console.error(err);

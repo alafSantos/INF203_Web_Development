@@ -9,35 +9,28 @@
 
 <body>
     <menu class="bar">
-        <li><button id="SHOW_BUTTON" onclick="show()">show txt</button></li>
-        <li><button id="BUT_ADD" onclick="copy()">add element</button></li>
-        <li><button id="REMOVE" onclick="copy()">remove element</button></li>
-        <li><button id="CLEAR" onclick="cut()">clear</button></li>
-        <li><button id="RESTORE" onclick="paste()">restore</button></li>
+        <button id="SHOW_BUTTON" onclick="show()">show txt</button>
+        <button id="BUT_ADD" onclick="show_add()">add element</button>
+        <button id="REMOVE" onclick="show_remove()">remove element</button>
+        <button id="CLEAR" onclick="clear()">clear</button>
+        <button id="RESTORE" onclick="restore()">restore</button>
+        <button id="LOC_PIE_BUTTON" onclick="show()">show local piechart</button>
+        <button> show piechart </button>
     </menu>
-
-    <input type="text" id="indexTF">
-    <input type="text" id="titleTF">
-    <input type="text" id="colorTF">
-    <input type="text" id="valueTF">
-
-    <button id="SENDADD">validate</button>
-    <button id="DOREM">removal</button>
-
     <br>
-    <div id="MAINSHOW"></div>
-
+    <div>
+        <input type="text" id="titleTF" placeholder="title" style="visibility:hidden">
+        <input type="text" id="colorTF" placeholder="color" style="visibility:hidden">
+        <input type="number" id="valueTF" placeholder="value" style="visibility:hidden">
+        <button id="SENDADD" onclick="sendAdd()" style="visibility:hidden">Add</button>
+    </div>
     <br>
-    <button>
-        show piechart
-    </button>
-    <svg id="PIEBUTTON" type="image/svg+xml" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 600" version="1.1">
-    </svg>
-
-    <button id="LOC_PIE_BUTTON" onclick="show()">
-        show local piechart
-    </button>
-
+    <div>
+        <input type="number" id="indexTF" placeholder="index" style="visibility:hidden">
+        <button id="DOREM" onclick="remove()" style="visibility:hidden">Delete</button>
+    </div>
+    <br>
+    <iframe id="MAINSHOW" name="MAINSHOW" width="1000" height="1000" frameBorder="0"></iframe>
 </body>
 
 </html>

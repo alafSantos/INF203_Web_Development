@@ -1,12 +1,1 @@
-[
-    {
-        "title": "foo",
-        "color": "red",
-        "value": 20
-    },
-    {
-        "title": "bar",
-        "color": "ivory",
-        "value": 100
-    }
-]
+[{"title":"foo","color":"red","value":20},{"title":"bar","color":"ivory","value":100},{"title":"alaf","color":"red","value":23},{"title":"alaf","color":"red","value":23},{"title":"alaf","color":"red","value":23},{"title":"alaf","color":"red","value":23},{"title":"alaf","color":"red","value":23}]

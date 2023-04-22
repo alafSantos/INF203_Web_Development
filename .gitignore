@@ -5,3 +5,5 @@ tpserver2/package-lock.json
 tpjs2/tpjs2.zip
 tpserver/tpserver.zip
 tpwebapp/tpwebapp.zip
+tpwebapp/node_modules/*
+tpwebapp/etc/
