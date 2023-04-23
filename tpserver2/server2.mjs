@@ -37,7 +37,6 @@ function webserver(request, response) {
         }
     }
     const { url, method } = request;
-    const params = new URL(url, `http://localhost:${port}`).searchParams;
     morgan(url);
 
     response.setHeader('Access-Control-Allow-Origin', '*');
@@ -165,6 +164,12 @@ function webserver(request, response) {
             response.writeHead(404);
             response.end("Publication not found");
         }
+    }
+    else if(method == "POST" && url.startsWith("/publication")){
+        
+    }
+    else if(method == "PUT" && url.startsWith("/publication")){
+        
     }
     // anything else
     else {
