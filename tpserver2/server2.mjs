@@ -206,7 +206,7 @@ app.put('/publication/:key', (request, res) => {
         let json_str = JSON.stringify(dbData);
         fs.writeFileSync(database_name, json_str);
 
-        res.send("Object modified successfully!");
+        res.send("Object modified");
     }
 });
 
