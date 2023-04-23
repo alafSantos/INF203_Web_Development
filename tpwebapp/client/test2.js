@@ -38,9 +38,10 @@ function showLocalPieChart() {
     chartContainer.innerHTML = "";
 
     const request = new XMLHttpRequest();
-    request.open('GET', local + "/fetchChartData");
+    request.open('GET', `${local}/Show`);
 
     request.onload = function () {
+        console.log(request.responseText);
         const responseData = JSON.parse(request.responseText);
 
         if (chartContainer.childElementCount !== 0) {
@@ -124,12 +125,12 @@ function removing() {
 }
 
 function cleaning() {
-    let request = local + "/clear";
+    let request = `${local}/clear`;
     simpleGET(request);
 }
 
 function restoring() {
-    let request = local + "/restore";
+    let request = `${local}/restore`;
     simpleGET(request);
 }
 
