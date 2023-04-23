@@ -36,7 +36,7 @@ function loadDB() {
 }
 
 // process GET requests to /exit
-app.get('/exit', function (req, response) {
+app.get('/exit', function (request, response) {
     // generate HTML response
     let message = "The server will stop now.";
     const html = createPage(message);
@@ -49,7 +49,7 @@ app.get('/exit', function (req, response) {
 });
 
 //process GET requests to /reload
-app.get('/reload', (req, response) => {
+app.get('/reload', (request, response) => {
     loadDB();
     response.setHeader("Content-Type", "text/plain; charset=utf-8");
     response.writeHead(200);
@@ -57,7 +57,7 @@ app.get('/reload', (req, response) => {
 });
 
 // process GET requests to /papers
-app.get('/papers', (req, response) => {
+app.get('/papers', (request, response) => {
     loadDB();
     let number = dbData.length + "";
     response.setHeader("Content-Type", "text/plain; charset=utf-8");
@@ -66,9 +66,9 @@ app.get('/papers', (req, response) => {
 });
 
 // process GET requests to /byauthor
-app.get('/byauthor/:name', (req, response) => {
+app.get('/byauthor/:name', (request, response) => {
     loadDB();
-    const authorName = req.params.name; // remove '/byauthor/'
+    const authorName = request.params.name; // remove '/byauthor/'
     const count = dbData.filter(paper => paper.authors.some(author => author.toLowerCase().includes(authorName.toLowerCase()))).length + "";
     response.setHeader("Content-Type", "text/plain; charset=utf-8");
     response.writeHead(200);
@@ -76,9 +76,9 @@ app.get('/byauthor/:name', (req, response) => {
 });
 
 // process GET requests to /descriptors
-app.get('/descriptors/:name', (req, response) => {
+app.get('/descriptors/:name', (request, response) => {
     loadDB();
-    const authorName = req.params.name;
+    const authorName = request.params.name;
     const papers = dbData.filter(paper => paper.authors.some(author => author.toLowerCase().includes(authorName.toLowerCase())));
     const descriptors = papers.map(paper => {
         return {
@@ -100,24 +100,24 @@ app.get('/descriptors/:name', (req, response) => {
     response.setHeader("Content-Type", "application/json; charset=utf-8");
     response.writeHead(200);
     response.end(json);
-})
+});
 
 // process GET requests to /titlelist
-app.get('/titlelist/:name', (req, response) => {
+app.get('/titlelist/:name', (request, response) => {
     loadDB();
-    const authorName = req.params.name.toLowerCase();
+    const authorName = request.params.name.toLowerCase();
     const papers = dbData.filter(paper => paper.authors.some(author => author.toLowerCase().includes(authorName)));
     const titles = papers.map(paper => paper.title);
     const json = JSON.stringify(titles);
     response.setHeader("Content-Type", "application/json; charset=utf-8");
     response.writeHead(200);
     response.end(json);
-})
+});
 
 // process GET requests to /publication
-app.get('/publication/:key', (req, response) => {
+app.get('/publication/:key', (request, response) => {
     loadDB();
-    const key = req.params.key;
+    const key = request.params.key;
     const publication = dbData.find(paper => paper.key === key);
 
     if (publication) {
@@ -146,12 +146,12 @@ app.get('/publication/:key', (req, response) => {
         response.writeHead(404);
         response.end("Publication not found");
     }
-})
+});
 
 // process DELETE requests to /publication
-app.delete('/publication/:key', (req, response) => {
+app.delete('/publication/:key', (request, response) => {
     loadDB();
-    const key = req.params.key;
+    const key = request.params.key;
     const publication = dbData.findIndex(paper => paper.key === key);
 
     if (publication >= 0) {
@@ -167,27 +167,24 @@ app.delete('/publication/:key', (req, response) => {
         response.writeHead(404);
         response.end("Publication not found");
     }
-})
+});
 
 // process POST requests to /publication
-app.post('/publication', (req, response) => {
-    let descriptor_to_add = req.body;
-
-    if (Object.keys(descriptor_to_add).length !== 0) {
-        dbData.push(descriptor_to_add);
+app.post('/publication', (request, response) => {
+    if (Object.keys(request.body).length === 0) {
+        response.status(403).send("Object already exist");
+    }
+    else {
+        dbData.push(request.body);
         let json_str = JSON.stringify(dbData);
         fs.writeFileSync(database_name, json_str);
         response.send("Object added");
     }
-    else {
-        response.status(403).send("Object already exist");
-    }
-})
+});
 
 // process PUT requests to /publication
-app.put('/publication/:key', (req, res) => {
-    let key = req.params.key;
-    let new_descriptor = req.body;
+app.put('/publication/:key', (request, res) => {
+    let key = request.params.key;
 
     let descriptor_to_modify_couple = { "descriptor": {}, "index": -1 };
 
@@ -197,28 +194,24 @@ app.put('/publication/:key', (req, res) => {
         }
     });
 
-    let descriptor_to_modify = descriptor_to_modify_couple.descriptor
-
-    if (Object.keys(descriptor_to_modify).length !== 0) {
-        let new_descriptor_keys = Object.keys(new_descriptor)
-
-        new_descriptor_keys.forEach(prop => {
-            if (descriptor_to_modify.hasOwnProperty(prop) && req.body.hasOwnProperty(prop)) {
-                descriptor_to_modify[prop] = new_descriptor[prop]
+    if (Object.keys(descriptor_to_modify_couple.descriptor).length === 0) {
+        res.status(500).send("Internal server error");
+    }
+    else {
+        Object.keys(request.body).forEach(prop => {
+            if (descriptor_to_modify_couple.descriptor.hasOwnProperty(prop) && request.body.hasOwnProperty(prop)) {
+                descriptor_to_modify_couple.descriptor[prop] = request.body[prop]
             }
         });
         let json_str = JSON.stringify(dbData);
         fs.writeFileSync(database_name, json_str);
 
-        res.send("Object modified successfully!")
+        res.send("Object modified successfully!");
     }
-    else {
-        res.status(500).send("Internal server error");
-    }
-})
+});
 
 // anything else
-app.get('/', (req, response) => {
+app.get('/', (request, response) => {
     response.setHeader("Content-Type", "text/html; charset=utf-8");
     response.end("<!doctype html><html><body>Hi</body></html>");
 });
