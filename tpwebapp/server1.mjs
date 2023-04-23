@@ -32,7 +32,7 @@ function webserver(request, response) {
   response.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
   // process GET requests to /files
-  if (method === "GET" && (url.startsWith("/files") || url.startsWith("/Show"))) {
+  if (method === "GET" && (url.startsWith("/files") || url.startsWith("/Show"))) {    
     const mimeTypes = {
       ".html": "text/html",
       ".css": "text/css",
@@ -173,7 +173,7 @@ function webserver(request, response) {
     svgString += '</svg>';
     response.writeHeader(200, { "Content-Type": "image/svg+xml" });
     response.write(svgString);
-    response.end("SVG sent");
+    response.end(); // SVG sent
   }
   // process GET requests to /end
   else if (method === "GET" && url == "/stop") {

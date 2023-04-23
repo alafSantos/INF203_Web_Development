@@ -1,8 +1,11 @@
 "use strict";
 
+// const local = "http://localhost:8000";
+const local = "../..";
+
 function show() {
     let xhr = new XMLHttpRequest();
-    let text = "../../Show";
+    let text = local + "/Show";
     xhr.open("GET", text);
     xhr.onload = function () {
         let div = document.getElementById("MAINSHOW");
@@ -14,7 +17,7 @@ function show() {
 
 function showPieChart() {
     let xhr = new XMLHttpRequest();
-    let text = "../../Chart";
+    let text = local + "/Chart";
     xhr.open("GET", text);
     xhr.onload = function () {
         let div = document.getElementById("MAINSHOW");
@@ -35,7 +38,7 @@ function showLocalPieChart() {
     chartContainer.innerHTML = "";
 
     const request = new XMLHttpRequest();
-    request.open('GET', '../../fetchChartData');
+    request.open('GET', local + "/fetchChartData");
 
     request.onload = function () {
         const responseData = JSON.parse(request.responseText);
@@ -111,22 +114,22 @@ function simpleGET(request) {
 }
 
 function sendAdd() {
-    let request = "../../add?title=" + getValue("titleTF") + "&value=" + getValue("valueTF") + "&color=" + getValue("colorTF");
+    let request = local + "/add?title=" + getValue("titleTF") + "&value=" + getValue("valueTF") + "&color=" + getValue("colorTF");
     simpleGET(request);
 }
 
-function remove() {
-    let request = "../../remove?index=" + (new Number(getValue("indexTF"))).toString();
+function removing() {
+    let request = local + "/remove?index=" + (new Number(getValue("indexTF"))).toString();
     simpleGET(request);
 }
 
-function clear() {
-    let request = '../../clear';
+function cleaning() {
+    let request = local + "/clear";
     simpleGET(request);
 }
 
-function clear() {
-    let request = '../../restore';
+function restoring() {
+    let request = local + "/restore";
     simpleGET(request);
 }
 

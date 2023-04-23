@@ -12,8 +12,8 @@
         <button id="SHOW_BUTTON" onclick="show()">show txt</button>
         <button id="BUT_ADD" onclick="show_add()">add element</button>
         <button id="REMOVE" onclick="show_remove()">remove element</button>
-        <button id="CLEAR" onclick="clear()">clear</button>
-        <button id="RESTORE" onclick="restore()">restore</button>
+        <button id="CLEAR" onclick="cleaning()">clear</button>
+        <button id="RESTORE" onclick="restoring()">restore</button>
         <button id="id=PIEBUTTON" onclick="showPieChart()"> show piechart </button>
         <button id="LOC_PIE_BUTTON" onclick="showLocalPieChart()">show local piechart</button>
     </menu>
@@ -27,10 +27,10 @@
     <br>
     <div>
         <input type="number" id="indexTF" placeholder="index" style="visibility:hidden">
-        <button id="DOREM" onclick="remove()" style="visibility:hidden">Delete</button>
+        <button id="DOREM" onclick="removing()" style="visibility:hidden">Delete</button>
     </div>
     <br>
-    <iframe id="MAINSHOW" name="MAINSHOW" width="1000" height="1000" frameBorder="0"></iframe>
+    <div id="MAINSHOW"></div>
 </body>
 
 </html>

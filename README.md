@@ -8,3 +8,8 @@ L'objectif de cette unité d'enseignement est d'être capable de développer des
 - server - 20
 - webapp - 6.7 (i've stopped in the Question 0)
 - server2 - 5.8 (i've stopped in the Question 0)
+
+
+webapp:
+    front via http: python -m SimpleHTTPServer 8001
+    back: node server1.mjs
