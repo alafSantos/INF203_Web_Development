@@ -32,7 +32,7 @@ function webserver(request, response) {
   response.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
   // process GET requests to /files
-  if (method === "GET" && (url.startsWith("/files") || url.startsWith("/Show"))) {    
+  if (method === "GET" && (url.startsWith("/files") || url.startsWith("/Show"))) {
     const mimeTypes = {
       ".html": "text/html",
       ".css": "text/css",
@@ -60,7 +60,7 @@ function webserver(request, response) {
           return;
         }
       }
-      
+
       // remove "/files/" prefix from URL
       let path = url.slice(7);
       // construct file path
@@ -131,7 +131,7 @@ function webserver(request, response) {
   }
   // process GET requests to /restore
   else if (method === "GET" && url == "/restore") {
-    let newJSON = `[{"title": "foo", "color": "red", "value": 20}, {"title": "bar", "color": "ivory", "value": 100}, {"title": "empty", "color": "red", "value": 1}]`;
+    let newJSON = `[{"title": "foo", "color": "blue", "value": 20}, {"title": "bar", "color": "black", "value": 10}, {"title": "empty", "color": "red", "value": 70}]`;
     fs.writeFileSync(database_name, newJSON);
     let json = JSON.parse(fs.readFileSync(database_name, 'utf8'));
     let json_str = JSON.stringify(json);
@@ -140,35 +140,39 @@ function webserver(request, response) {
   }
   // process GET requests to /Chart
   else if (method === "GET" && url == "/Chart") {
-    function calculateCoordinates(percentValue) {
-      const xValue = Math.cos(2 * Math.PI * percentValue);
-      const yValue = Math.sin(2 * Math.PI * percentValue);
-      return [xValue, yValue];
+    function calculateCoordinates(anglePercent) {
+      return [Math.cos(2 * Math.PI * anglePercent), Math.sin(2 * Math.PI * anglePercent)];
     }
 
-    const sliceData = JSON.parse(fs.readFileSync("storage.json"));
-    let svgString = '<svg id="piechart" viewBox="-1 -1 2 2" height=500 width=500>';
+    const sliceData = JSON.parse(fs.readFileSync(database_name));
+    let svgString = '<svg viewBox="-1 -1 2 2" width=480>';
     let totalValue = 0;
 
     for (let slice of sliceData) {
-      totalValue += Number(slice.amount);
+      totalValue += parseFloat(slice.value);
     }
 
     let cumulativeValue = 0;
-    for (let slice of sliceData) {
-      let percentValue = slice.amount / totalValue;
-      let [xStart, yStart] = calculateCoordinates(cumulativeValue);
-      cumulativeValue += percentValue;
-      let [xEnd, yEnd] = calculateCoordinates(cumulativeValue);
+    if (sliceData.length) {
+      for (let slice of sliceData) {
+        let percentValue = parseFloat(slice.value) / totalValue;
+        let [xStart, yStart] = calculateCoordinates(cumulativeValue);
+        cumulativeValue += percentValue;
+        let [xEnd, yEnd] = calculateCoordinates(cumulativeValue);
 
-      let largeArcFlagValue = percentValue > .5 ? 1 : 0;
-      let pathDataString = [
-        `M ${xStart} ${yStart}`,
-        `A 1 1 0 ${largeArcFlagValue} 1 ${xEnd} ${yEnd}`,
-        `L 0 0`,
-      ].join(' ');
+        let largeArcFlag = 0;
+        if (percentValue > 0.5) {
+          largeArcFlag = 1;
+        }
 
-      svgString += `<path d="${pathDataString}" fill="${slice.color}"></path>`;
+        let pathDataString = [
+          `M ${xStart} ${yStart}`,
+          `A 1 1 0 ${largeArcFlag} 1 ${xEnd} ${yEnd}`,
+          `L 0 0`,
+        ].join(" ");
+
+        svgString += `<path d="${pathDataString}" fill="${slice.color}"></path>`;
+      }
     }
     svgString += '</svg>';
     response.writeHeader(200, { "Content-Type": "image/svg+xml" });
