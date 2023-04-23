@@ -4,10 +4,12 @@ import { createServer } from "http";
 import { argv } from "node:process";
 import morgan from "morgan";
 import pkg from "express";
+import express from 'express';
 import fs from 'fs';
 
 const app = pkg();
-app.use(morgan('tiny'));
+app.use(morgan('tiny')); // logging
+app.use(express.json()); // express middleware
 
 const port = argv[2] || 8000;
 let dbData = {};
@@ -165,11 +167,30 @@ function webserver(request, response) {
             response.end("Publication not found");
         }
     }
-    else if(method == "POST" && url.startsWith("/publication")){
-        
+    else if (method == "POST" && url == "/publication") {
+        loadDB();
+
+        const body = { "key": "imaginary", "title": "fun", "journal": "pifpoche", "year": "1960", "authors": ["dufourd"] };
+        dbData.push(body);
+
+        let json_str = JSON.stringify(dbData);
+        fs.writeFileSync(database_name, json_str);
+        response.setHeader("Content-Type", "application/json; charset=utf-8");
+        response.writeHeader(200);
+        response.end(json_str);
     }
-    else if(method == "PUT" && url.startsWith("/publication")){
-        
+    else if (method == "PUT" && url.startsWith("/publication")) {
+        loadDB();
+
+        dbData.splice(dbData.findIndex(entry => entry.key === "imaginary"), 1);
+        const body = { "key": "imaginary", "title": "morefun", "journal": "tintin", "year": "1960", "authors": ["dufourd"] };
+        dbData.push(body);
+
+        let json_str = JSON.stringify(dbData);
+        fs.writeFileSync(database_name, json_str);
+        response.setHeader("Content-Type", "application/json; charset=utf-8");
+        response.writeHeader(200);
+        response.end(json_str);
     }
     // anything else
     else {
